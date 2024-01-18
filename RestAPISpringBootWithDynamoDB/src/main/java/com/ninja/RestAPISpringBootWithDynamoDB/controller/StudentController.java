@@ -25,7 +25,11 @@ public class StudentController {
 
 	@Autowired
 	StudentService studentService;
-	
+
+    @GetMapping("message")
+    public String message(){
+        return "SUCCESS";
+    }
 	@GetMapping("/students")
     public ResponseEntity<Iterable<Student>> getStudents() {
         return ResponseEntity.ok(studentService.getStudents());

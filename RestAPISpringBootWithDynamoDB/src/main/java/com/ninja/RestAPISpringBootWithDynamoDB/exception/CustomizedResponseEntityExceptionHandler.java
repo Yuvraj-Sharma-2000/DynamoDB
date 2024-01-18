@@ -13,8 +13,6 @@ import org.springframework.web.context.request.WebRequest;
 
 @ControllerAdvice
 public class CustomizedResponseEntityExceptionHandler {
-
-	
 	
 	@ExceptionHandler(EntityNotFoundException.class)
 	public final ResponseEntity<ExceptionResponse> handleDataNotFoundException(EntityNotFoundException ex, WebRequest request) {

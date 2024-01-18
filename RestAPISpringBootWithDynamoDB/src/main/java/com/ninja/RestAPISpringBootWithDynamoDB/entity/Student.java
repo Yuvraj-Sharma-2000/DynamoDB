@@ -25,5 +25,4 @@ public class Student {
 	
 	@DynamoDBAttribute
 	private String grade;
-	
 }
