@@ -1,5 +1,8 @@
 package com.ninja.RestAPISpringBootWithDynamoDB.config;
 
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRepositories;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +14,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
 	@EnableDynamoDBRepositories
@@ -39,4 +43,9 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 	    public AWSCredentialsProvider awsCredentialsProvider() {
 	        return new AWSStaticCredentialsProvider(new BasicAWSCredentials(amazonAWSAccessKey, amazonAWSSecretKey));
 	    }
+		@Bean
+		@Primary
+		public DynamoDBMapper dynamoDBMapper() {
+			return new DynamoDBMapper(amazonDynamoDB(awsCredentialsProvider()),	DynamoDBMapperConfig.DEFAULT);
+		}
 }

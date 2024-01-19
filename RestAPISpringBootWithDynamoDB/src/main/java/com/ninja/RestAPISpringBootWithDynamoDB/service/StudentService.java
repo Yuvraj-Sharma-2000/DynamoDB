@@ -3,6 +3,7 @@ package com.ninja.RestAPISpringBootWithDynamoDB.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +49,7 @@ public class StudentService {
 			studentRepo.deleteById(id);	
 	}
 	
-	public Student addStudent(Student student) {		
+	public Student addStudent(Student student) {
 		return studentRepo.save(student);	
 	}
 
