@@ -1,7 +1,8 @@
 package com.ninja.RestAPISpringBootWithDynamoDB;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.*;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.github.javafaker.Faker;
 import com.ninja.RestAPISpringBootWithDynamoDB.entity.Report;
 import com.ninja.RestAPISpringBootWithDynamoDB.entity.Student;
@@ -12,7 +13,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @SpringBootApplication
@@ -30,7 +33,43 @@ public class RestApiSpringBootWithDynamoDbApplication {
 //		load(mapper);
 //		save(mapper);
 //		query(mapper);
-		delete(mapper);
+//		delete(mapper);
+//		pageQuery(mapper);
+		scan(mapper);
+	}
+
+	private static void scan(DynamoDBMapper mapper) {
+		// Create a DynamoDBScanExpression with filters on the "grade" and "firstName" attributes
+		DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+
+		// Build a map for the filter expressions
+		Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+		expressionAttributeValues.put(":gradeVal", new AttributeValue().withS("A"));
+		expressionAttributeValues.put(":firstNameVal", new AttributeValue().withS("Ram"));
+
+		// Set the filter expressions
+		scanExpression
+				.withFilterExpression("grade = :gradeVal AND firstName = :firstNameVal")
+				.withExpressionAttributeValues(expressionAttributeValues);
+
+		// Perform the scan operation with DynamoDBScanExpression
+		PaginatedScanList<Student> scanResult = mapper.scan(Student.class, scanExpression);
+
+		scanResult.forEach(System.out::println);
+	}
+
+	private static void pageQuery(DynamoDBMapper mapper) {
+		Student s = new Student();
+		s.setId("1");
+		DynamoDBQueryExpression<Student> queryExpression =
+				new DynamoDBQueryExpression<Student>()
+						.withHashKeyValues(s)
+						.withLimit(2);
+		QueryResultPage<?> resultPage = mapper.queryPage(Student.class, queryExpression);
+
+		System.out.println(resultPage.getResults());
+		System.out.println(resultPage.getLastEvaluatedKey());
+
 	}
 
 	private static void delete(DynamoDBMapper mapper) {
@@ -62,15 +101,15 @@ public class RestApiSpringBootWithDynamoDbApplication {
 	private static void save(DynamoDBMapper mapper) {
 		// Basic save //
 		Student s  = new Student();
-		s.setId("2");
-		s.setGrade("S");
-		s.setFirstName("Rotten");
-		s.setLastName("tom");
+		s.setId("1");
+		s.setGrade("B");
+		s.setFirstName("Vicky");
+		s.setLastName("Tomar");
 		s.setReport(Report.builder().
-				reportId("33").
-				university("LAS").
-				branch("BS").
-				percentage(40).
+				reportId("5").
+				university("SSTC").
+				branch("CSE").
+				percentage(95).
 				status("PASS").
 				build());
 
