@@ -12,10 +12,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @SpringBootApplication
@@ -35,7 +32,7 @@ public class RestApiSpringBootWithDynamoDbApplication {
 //		query(mapper);
 //		delete(mapper);
 //		pageQuery(mapper);
-		scan(mapper);
+//		scan(mapper);
 	}
 
 	private static void scan(DynamoDBMapper mapper) {
