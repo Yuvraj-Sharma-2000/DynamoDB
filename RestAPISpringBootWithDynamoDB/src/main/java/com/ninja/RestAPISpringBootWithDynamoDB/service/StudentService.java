@@ -1,21 +1,27 @@
 package com.ninja.RestAPISpringBootWithDynamoDB.service;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.*;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.ninja.RestAPISpringBootWithDynamoDB.entity.Student;
 import com.ninja.RestAPISpringBootWithDynamoDB.exception.EntityNotFoundException;
 import com.ninja.RestAPISpringBootWithDynamoDB.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class StudentService {
 	
 	@Autowired
 	StudentRepository studentRepo;
+	private static DynamoDBMapper mapper;
+
+	public StudentService(@Qualifier("dynamoDBMapper") DynamoDBMapper mapper) {
+		StudentService.mapper = mapper;
+	}
 
 	public Iterable<Student> getStudents() {
 		return studentRepo.findAll();
@@ -53,4 +59,19 @@ public class StudentService {
 		return studentRepo.save(student);	
 	}
 
+	public List<Student> pageQueryWithSize(int pageNumber, int pageSize) {
+		DynamoDBScanExpression pageScanExpression = new DynamoDBScanExpression()
+				.withLimit(pageSize)
+				.withExclusiveStartKey(null);
+		Map<String, AttributeValue> lastEvaluatedKey;
+		do {
+			ScanResultPage<Student> page = mapper.scanPage(Student.class, pageScanExpression);
+			lastEvaluatedKey = page.getLastEvaluatedKey();
+			pageScanExpression.setExclusiveStartKey(lastEvaluatedKey);
+		}while (--pageNumber>1);
+
+		pageScanExpression.setExclusiveStartKey(lastEvaluatedKey);
+
+		return mapper.scanPage(Student.class, pageScanExpression).getResults();
+	}
 }

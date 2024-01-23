@@ -59,5 +59,11 @@ public class StudentController {
 		responseMap.put("message_response", msg);
 		return ResponseEntity.status(HttpStatus.OK).body(responseMap);
     }
+
+    @GetMapping("/page/{pageNumber}/size/{pageSize}")
+    public ResponseEntity<?> pageQuery(@PathVariable int pageNumber, @PathVariable int pageSize){
+        List<Student> studentList = studentService.pageQueryWithSize(pageNumber, pageSize);
+        return ResponseEntity.ok(studentList);
+    }
 }
 

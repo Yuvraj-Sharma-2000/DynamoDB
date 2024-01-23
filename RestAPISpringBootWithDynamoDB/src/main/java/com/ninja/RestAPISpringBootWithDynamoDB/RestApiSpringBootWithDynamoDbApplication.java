@@ -2,14 +2,11 @@ package com.ninja.RestAPISpringBootWithDynamoDB;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ScanRequest;
 import com.github.javafaker.Faker;
 import com.ninja.RestAPISpringBootWithDynamoDB.entity.Report;
 import com.ninja.RestAPISpringBootWithDynamoDB.entity.Student;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.*;
@@ -33,6 +30,8 @@ public class RestApiSpringBootWithDynamoDbApplication {
 //		delete(mapper);
 //		pageQuery(mapper);
 //		scan(mapper);
+
+//		populateTable(mapper);
 	}
 
 	private static void scan(DynamoDBMapper mapper) {
@@ -45,9 +44,9 @@ public class RestApiSpringBootWithDynamoDbApplication {
 		expressionAttributeValues.put(":firstNameVal", new AttributeValue().withS("Ram"));
 
 		// Set the filter expressions
-		scanExpression
-				.withFilterExpression("grade = :gradeVal AND firstName = :firstNameVal")
-				.withExpressionAttributeValues(expressionAttributeValues);
+//		scanExpression
+//				.withFilterExpression("grade = :gradeVal AND firstName = :firstNameVal")
+//				.withExpressionAttributeValues(expressionAttributeValues);
 
 		// Perform the scan operation with DynamoDBScanExpression
 		PaginatedScanList<Student> scanResult = mapper.scan(Student.class, scanExpression);
@@ -95,6 +94,24 @@ public class RestApiSpringBootWithDynamoDbApplication {
 		studentList.forEach(System.out::println);
 	}
 
+	private static void populateTable(DynamoDBMapper mapper){
+		for (int i = 0; i < 100; i++) {
+			Student s  = new Student();
+			s.setId(String.valueOf(i));
+			s.setGrade(faker.random().hex(1).toUpperCase());
+			s.setFirstName(faker.name().firstName());
+			s.setLastName(faker.name().lastName());
+			s.setReport(Report.builder().
+					reportId(String.valueOf(i*10)).
+					university(faker.university().name()).
+					branch(faker.educator().course()).
+					percentage(faker.number().numberBetween(0,100)).
+					status(i%2==0?"PASS":"FAIL").
+					build());
+
+			mapper.save(s);
+		}
+	}
 	private static void save(DynamoDBMapper mapper) {
 		// Basic save //
 		Student s  = new Student();
@@ -125,7 +142,3 @@ public class RestApiSpringBootWithDynamoDbApplication {
 		System.out.println(result);
 	}
 }
-
-
-
-
