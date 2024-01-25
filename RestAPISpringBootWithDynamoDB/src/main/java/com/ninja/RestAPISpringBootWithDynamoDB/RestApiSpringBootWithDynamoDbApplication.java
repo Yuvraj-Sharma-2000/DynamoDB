@@ -30,11 +30,10 @@ public class RestApiSpringBootWithDynamoDbApplication {
 //		delete(mapper);
 //		pageQuery(mapper);
 //		scan(mapper);
-
 //		populateTable(mapper);
 	}
 
-	private static void scan(DynamoDBMapper mapper) {
+	public static void scan(DynamoDBMapper mapper) {
 		// Create a DynamoDBScanExpression with filters on the "grade" and "firstName" attributes
 		DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
 
@@ -44,9 +43,9 @@ public class RestApiSpringBootWithDynamoDbApplication {
 		expressionAttributeValues.put(":firstNameVal", new AttributeValue().withS("Ram"));
 
 		// Set the filter expressions
-//		scanExpression
-//				.withFilterExpression("grade = :gradeVal AND firstName = :firstNameVal")
-//				.withExpressionAttributeValues(expressionAttributeValues);
+		scanExpression
+				.withFilterExpression("grade = :gradeVal AND firstName = :firstNameVal")
+				.withExpressionAttributeValues(expressionAttributeValues);
 
 		// Perform the scan operation with DynamoDBScanExpression
 		PaginatedScanList<Student> scanResult = mapper.scan(Student.class, scanExpression);
@@ -54,7 +53,7 @@ public class RestApiSpringBootWithDynamoDbApplication {
 		scanResult.forEach(System.out::println);
 	}
 
-	private static void pageQuery(DynamoDBMapper mapper) {
+	public static void pageQuery(DynamoDBMapper mapper) {
 		Student s = new Student();
 		s.setId("1");
 		DynamoDBQueryExpression<Student> queryExpression =
@@ -68,7 +67,7 @@ public class RestApiSpringBootWithDynamoDbApplication {
 
 	}
 
-	private static void delete(DynamoDBMapper mapper) {
+	public static void delete(DynamoDBMapper mapper) {
 		// Single delete //
 		Student s = new Student();
 		s.setId("3");
@@ -78,7 +77,7 @@ public class RestApiSpringBootWithDynamoDbApplication {
 //		mapper.batchDelete(s,s,s);
 	}
 
-	private static void query(DynamoDBMapper mapper) {
+	public static void query(DynamoDBMapper mapper) {
 		// Normal query //
 		Student s = new Student();
 		s.setId("1");
@@ -94,7 +93,7 @@ public class RestApiSpringBootWithDynamoDbApplication {
 		studentList.forEach(System.out::println);
 	}
 
-	private static void populateTable(DynamoDBMapper mapper){
+	public static void populateTable(DynamoDBMapper mapper){
 		for (int i = 0; i < 100; i++) {
 			Student s  = new Student();
 			s.setId(String.valueOf(i));
@@ -112,7 +111,7 @@ public class RestApiSpringBootWithDynamoDbApplication {
 			mapper.save(s);
 		}
 	}
-	private static void save(DynamoDBMapper mapper) {
+	public static void save(DynamoDBMapper mapper) {
 		// Basic save //
 		Student s  = new Student();
 		s.setId("1");
@@ -133,7 +132,7 @@ public class RestApiSpringBootWithDynamoDbApplication {
 //		mapper.batchSave(s,s,s);
 	}
 
-	private static void load(DynamoDBMapper mapper){
+	public static void load(DynamoDBMapper mapper){
 		// ------- Basic load -------- //
 		Student student = new Student();
 		student.setId("1");

@@ -2,6 +2,7 @@ package com.ninja.RestAPISpringBootWithDynamoDB.service;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.ninja.RestAPISpringBootWithDynamoDB.entity.Report;
 import com.ninja.RestAPISpringBootWithDynamoDB.entity.Student;
 import com.ninja.RestAPISpringBootWithDynamoDB.exception.EntityNotFoundException;
 import com.ninja.RestAPISpringBootWithDynamoDB.repository.StudentRepository;
@@ -14,9 +15,9 @@ import java.util.*;
 
 @Service
 public class StudentService {
-	
+
 	@Autowired
-	StudentRepository studentRepo;
+	private StudentRepository studentRepo;
 	private static DynamoDBMapper mapper;
 
 	public StudentService(@Qualifier("dynamoDBMapper") DynamoDBMapper mapper) {
@@ -24,7 +25,8 @@ public class StudentService {
 	}
 
 	public Iterable<Student> getStudents() {
-		return studentRepo.findAll();
+		DynamoDBScanExpression scanExpression = new DynamoDBScanExpression().withLimit(25);
+		return mapper.scan(Student.class, scanExpression);
 	}
 
 	// Value = Name of the cache to use
@@ -32,38 +34,38 @@ public class StudentService {
 	// unless = expression to filter what to cache
 	@Cacheable(value = "DynamoDbCache", key="#id", unless = "#result.grade.equals('A')")
 	public Optional<Student> getStudent(String id) {
-		Optional<Student> student = studentRepo.findById(id);
-		return Optional.of(student)
-				.orElseThrow(() -> new EntityNotFoundException("Student not found with the given ID"));
+		Student student = new Student();
+		student.setId(id);
+
+		return Optional.ofNullable(mapper.load(student));
 	}
 
 	public Student updateStudent(Student student, String id) {
-		boolean exists = studentRepo.existsById(id);
-		if(!exists) {
-			throw new EntityNotFoundException("Student(id- " + id + ") Not Found !!");
-		}
-		else
-			student.setId(id);
-		return studentRepo.save(student);
+		student.setId(id);
+		mapper.delete(student);
+		mapper.save(student);
+
+		return student;
 	}
 
-	public void deleteStudent(String id) {
-		boolean exists = studentRepo.existsById(id);
-		if(!exists)
-			throw new EntityNotFoundException("Student(id- " + id + ") Not Found !!");
-		else
-			studentRepo.deleteById(id);	
+	public boolean deleteStudent(String id) {
+		Student student = new Student();
+		student.setId(id);
+		mapper.delete(student);
+
+		return true;
 	}
 	
 	public Student addStudent(Student student) {
-		return studentRepo.save(student);	
+		mapper.save(student);
+		return student;
 	}
 
 	public List<Student> pageQueryWithSize(int pageNumber, int pageSize) {
 		DynamoDBScanExpression pageScanExpression = new DynamoDBScanExpression()
 				.withLimit(pageSize)
 				.withExclusiveStartKey(null);
-		Map<String, AttributeValue> lastEvaluatedKey;
+		Map<String, AttributeValue> lastEvaluatedKey = null;
 		do {
 			ScanResultPage<Student> page = mapper.scanPage(Student.class, pageScanExpression);
 			lastEvaluatedKey = page.getLastEvaluatedKey();

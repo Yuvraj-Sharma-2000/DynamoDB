@@ -51,13 +51,9 @@ public class StudentController {
     }
 	
 	@DeleteMapping("/student/{id}")
-    public ResponseEntity<Map<String, String>> deleteStudent(@PathVariable String id) {
-		Map<String, String> responseMap = new TreeMap<String, String>(Collections.reverseOrder());
-		studentService.deleteStudent(id);
-		String msg = "The record has been deleted !!";
-		responseMap.put("student_ id", id);
-		responseMap.put("message_response", msg);
-		return ResponseEntity.status(HttpStatus.OK).body(responseMap);
+    public ResponseEntity<?> deleteStudent(@PathVariable String id) {
+        boolean deleted = studentService.deleteStudent(id);
+        return ResponseEntity.ok(deleted);
     }
 
     @GetMapping("/page/{pageNumber}/size/{pageSize}")

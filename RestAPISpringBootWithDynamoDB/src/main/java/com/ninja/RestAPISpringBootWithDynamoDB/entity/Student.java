@@ -32,4 +32,5 @@ public class Student {
 	@DynamoDBAttribute(attributeName = "report")
 	@DynamoDBTypeConverted(converter = ReportTranslator.class)
 	private Report report;
+
 }
